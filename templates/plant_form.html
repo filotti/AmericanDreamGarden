@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% set is_edit_mode = is_edit | default(false) %}
+{% set form_title = "Edit Plant Info" if is_edit_mode else "Add New Plant" %}
+{% set submit_button_text = "Save Changes" if is_edit_mode else "Add Plant" %}
+{% set form_action_url = form_action | default(url_for('plants.add_plant')) %}
+
+{% block title %}{{ form_title }} - American Dream Garden{% endblock %}
+
+{% block content %}
+    <h2 class="mb-4">{{ form_title }}</h2>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if not is_edit_mode %}
+            <p class="card-text text-muted mb-4">Use this form to add a new plant to your garden. You can assign a unique ID or let the system generate one (if applicable - current setup requires ID).</p>
+            {% endif %}
+
+            {# Get submitted data on error, or pre-fill with existing plant data for edit #}
+            {% set current_id = request.form.get('plant_id', plant.id if is_edit_mode else '') %}
+            {% set current_species = request.form.get('species', plant.species if is_edit_mode else '') %}
+
+            <form action="{{ form_action_url }}" method="post" enctype="multipart/form-data">
+
+                <div class="mb-3">
+                    <label for="plantId" class="form-label">Plant ID *</label>
+                    <input type="text" class="form-control {% if is_edit_mode %}is-disabled{% endif %}" id="plantId" name="plant_id" value="{{ current_id }}" {% if is_edit_mode %}readonly{% else %}required{% endif %}>
+                    {% if is_edit_mode %}
+                        <div class="form-text">The plant ID cannot be changed after creation.</div>
+                    {% else %}
+                        <div class="form-text">Enter a unique ID (e.g., "monstera-01", "snake-plant-hallway"). Required.</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="plantSpecies" class="form-label">Species (Optional)</label>
+                    <input type="text" class="form-control" id="plantSpecies" name="species" value="{{ current_species }}" placeholder="e.g., Monstera deliciosa">
+                </div>
+
+                {% if not is_edit_mode %}
+                <div class="mb-4">
+                    <label for="plantPhotos" class="form-label">Add Initial Photos (Optional)</label>
+                    <input class="form-control" type="file" id="plantPhotos" name="photos" multiple accept="image/*">
+                    <div class="form-text">You can add more photos later from the plant detail page.</div>
+                </div>
+                {% endif %}
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        {% if is_edit_mode %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-save me-1" viewBox="0 0 16 16">
+                              <path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v7.293l2.646-2.647a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L7.5 9.293V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1H2z"/>
+                            </svg>
+                        {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg me-1" viewBox="0 0 16 16">
+                              <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
+                            </svg>
+                        {% endif %}
+                        {{ submit_button_text }}
+                    </button>
+                    <a href="{{ url_for('plants.plant_detail', plant_id=plant.id) if is_edit_mode else url_for('plants.index') }}" class="btn btn-outline-secondary">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg me-1" viewBox="0 0 16 16">
+                           <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                         </svg>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
