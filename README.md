@@ -39,7 +39,7 @@ The application uses Google Cloud Storage (GCS) for data persistence instead of 
 
 1. Create a new GCS bucket:
    ```bash
-   gsutil mb gs://your-garden-bucket-name
+   gcloud storage buckets create gs://your-garden-bucket-name
    ```
 
 ### Docker Build and Deploy to Google Cloud Run
